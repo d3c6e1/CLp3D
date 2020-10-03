@@ -115,19 +115,19 @@ void main()
 		float fElapsedTime = elapsedTime.count();
 	
 		// Handle CCW Rotation
-		if (GetAsyncKeyState(static_cast<unsigned short>('A')) & 0x8000)
+		if (GetAsyncKeyState(static_cast<USHORT>('A')) & 0x8000)
 		{
 			playerA -= (speed * 0.75f) * fElapsedTime;
 		}
 	
 		// Handle CW Rotation
-		if (GetAsyncKeyState(static_cast<unsigned short>('D')) & 0x8000)
+		if (GetAsyncKeyState(static_cast<USHORT>('D')) & 0x8000)
 		{
 			playerA += (speed * 0.75f) * fElapsedTime;
 		}
 
 		// Handle movent and collision
-		if (GetAsyncKeyState(static_cast<unsigned short>('W')) & 0x8000)
+		if (GetAsyncKeyState(static_cast<USHORT>('W')) & 0x8000)
 		{
 			playerX += sinf(playerA) * speed * fElapsedTime;
 			playerY += cosf(playerA) * speed * fElapsedTime;
@@ -138,7 +138,7 @@ void main()
 			}			
 		}
 
-		if (GetAsyncKeyState(static_cast<unsigned short>('S')) & 0x8000)
+		if (GetAsyncKeyState(static_cast<USHORT>('S')) & 0x8000)
 		{
 			playerX -= sinf(playerA) * speed * fElapsedTime;
 			playerY -= cosf(playerA) * speed * fElapsedTime;
@@ -153,6 +153,13 @@ void main()
 		if(GetAsyncKeyState(VK_ESCAPE))
 		{
 			return;
+		}
+
+		//handle try to repair resolution
+		if(GetAsyncKeyState(static_cast<USHORT>('R')) & 0x8000)
+		{
+			SetConsoleScreenBufferInfoEx(hConsole, &csbi);
+			SetCurrentConsoleFontEx(hConsole, TRUE, &font);
 		}
 	
 		for (UINT x = 0; x < CNSL_WIDTH; x++)
@@ -264,7 +271,7 @@ void main()
 		}
 	
 		// Display Stats
-		swprintf_s(screen, 75, L"move:W/S, rotate:A/D, exit:ESC X=%3.2f, Y=%3.2f, A=%3.2f FPS=%3.2f", playerX, playerY, playerA, 1.0f/fElapsedTime);
+		swprintf_s(screen, 90, L"move:W/S, rotate:A/D, exit:ESC, try to repair:R X=%3.2f, Y=%3.2f, A=%3.2f FPS=%3.2f", playerX, playerY, playerA, 1.0f/fElapsedTime);
 	
 		// Display Map
 		for (UINT nx = 0; nx < MAP_WIDTH; nx++)
