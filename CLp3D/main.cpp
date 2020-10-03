@@ -49,27 +49,38 @@ void main()
 	// console colors
 	SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 0x0f);
 
-	// Set console window size
-	SMALL_RECT rect;
-    rect.Top = 0;
-    rect.Left = 0;
-    rect.Bottom = CNSL_HEIGHT - 1; 
-    rect.Right = CNSL_WIDTH - 1; 
-	SetConsoleWindowInfo(GetStdHandle(STD_OUTPUT_HANDLE), TRUE, &rect);
+	SMALL_RECT cWindowRect;
+    cWindowRect.Top = 0;
+    cWindowRect.Left = 0;
+    cWindowRect.Bottom = CNSL_HEIGHT;
+    cWindowRect.Right = CNSL_WIDTH;
 
-	// Set console font
+	COORD cSize;
+	cSize.Y = CNSL_HEIGHT;
+	cSize.X = CNSL_WIDTH;
+
 	CONSOLE_FONT_INFOEX font;
 	ZeroMemory(&font, sizeof(font));
 	font.cbSize = sizeof(font);
 	lstrcpyW(font.FaceName, L"Consolas");
 	font.dwFontSize.Y = 16;
-	SetCurrentConsoleFontEx(GetStdHandle(STD_OUTPUT_HANDLE), FALSE, &font);
+
+	CONSOLE_SCREEN_BUFFER_INFOEX csbi{ sizeof csbi };
 	
 	// Create Screen Buffer
 	auto screen = new WCHAR[CNSL_WIDTH * CNSL_HEIGHT + 1];
 	HANDLE hConsole = CreateConsoleScreenBuffer(GENERIC_READ | GENERIC_WRITE, 0, NULL, CONSOLE_TEXTMODE_BUFFER, NULL);
 	SetConsoleActiveScreenBuffer(hConsole);
 	DWORD dwBytesWritten = 0;
+
+	GetConsoleScreenBufferInfoEx(hConsole, &csbi);
+	
+	csbi.srWindow = cWindowRect;
+	csbi.dwSize = cSize;
+	csbi.dwMaximumWindowSize = cSize;
+	
+	SetConsoleScreenBufferInfoEx(hConsole, &csbi);
+	SetCurrentConsoleFontEx(hConsole, TRUE, &font);
 	
 	// Create Map of world space # = wall block, . = space
 	std::wstring map;
@@ -77,8 +88,8 @@ void main()
 	map += L"#..............#";
 	map += L"#.......########";
 	map += L"#..............#";
-	map += L"#..........#...#";
-	map += L"#......#.......#";
+	map += L"#........#.#...#";
+	map += L"#.......#......#";
 	map += L"#..............#";
 	map += L"###............#";
 	map += L"##.............#";
@@ -86,7 +97,7 @@ void main()
 	map += L"#......#.......#";
 	map += L"#......#.......#";
 	map += L"#..............#";
-	map += L"#......#########";
+	map += L"#......#.#######";
 	map += L"#..............#";
 	map += L"################";
 
