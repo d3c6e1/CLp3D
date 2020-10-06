@@ -29,6 +29,8 @@ float depth = 16.0f;
 // Walking Speed
 float speed = 5.0f;
 
+void fullScreen();
+
 void main()
 {
 	// get screen dimensions
@@ -37,17 +39,9 @@ void main()
 
 	// CNSL_HEIGHT = SCRN_HEIGHT/10;
 	// CNSL_WIDTH = SCRN_WIDTH/10;
-
-	// fullscreen console
-	// keybd_event(VK_MENU,0x38,0,0);
-	// keybd_event(VK_RETURN,0x1c,0,0);
-	// keybd_event(VK_RETURN,0x1c,KEYEVENTF_KEYUP,0);
-	// keybd_event(VK_MENU,0x38,KEYEVENTF_KEYUP,0);
 	
 	// cursor to the center
 	// SetCursorPos(SCRN_WIDTH/2,SCRN_HEIGHT/2);
-	// console colors
-	SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 0x0f);
 
 	SMALL_RECT cWindowRect;
     cWindowRect.Top = 0;
@@ -78,8 +72,9 @@ void main()
 	csbi.srWindow = cWindowRect;
 	csbi.dwSize = cSize;
 	csbi.dwMaximumWindowSize = cSize;
-	
+
 	SetConsoleScreenBufferInfoEx(hConsole, &csbi);
+	SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 0x0f);
 	SetCurrentConsoleFontEx(hConsole, TRUE, &font);
 	
 	// Create Map of world space # = wall block, . = space
@@ -159,6 +154,18 @@ void main()
 		if(GetAsyncKeyState(static_cast<USHORT>('R')) & 0x8000)
 		{
 			SetConsoleScreenBufferInfoEx(hConsole, &csbi);
+		}
+
+		// handle font size changing
+		if(GetAsyncKeyState(VK_UP))
+		{
+			font.dwFontSize.Y++;
+			SetCurrentConsoleFontEx(hConsole, TRUE, &font);
+		}
+		
+		if(GetAsyncKeyState(VK_DOWN))
+		{
+			font.dwFontSize.Y--;
 			SetCurrentConsoleFontEx(hConsole, TRUE, &font);
 		}
 	
@@ -271,7 +278,7 @@ void main()
 		}
 	
 		// Display Stats
-		swprintf_s(screen, 90, L"move:W/S, rotate:A/D, exit:ESC, try to repair:R X=%3.2f, Y=%3.2f, A=%3.2f FPS=%3.2f", playerX, playerY, playerA, 1.0f/fElapsedTime);
+		swprintf_s(screen, 105, L"move:W/S, rotate:A/D, exit:ESC, try to repair:R, arrows UP/DOWN X=%3.2f, Y=%3.2f, A=%3.2f FPS=%3.2f", playerX, playerY, playerA, 1.0f/fElapsedTime);
 	
 		// Display Map
 		for (UINT nx = 0; nx < MAP_WIDTH; nx++)
@@ -280,9 +287,17 @@ void main()
 				screen[(ny+1)*CNSL_WIDTH + nx] = map[ny * MAP_WIDTH + nx];
 			}
 		screen[(static_cast<int>(playerX)+1) * CNSL_WIDTH + static_cast<int>(playerY)] = '@';
-	
+
 		// Display Frame
 		screen[CNSL_WIDTH * CNSL_HEIGHT] = '\0';
 		WriteConsoleOutputCharacter(hConsole, screen, CNSL_WIDTH * CNSL_HEIGHT, { 0,0 }, &dwBytesWritten);
 	}
+}
+
+void fullScreen()
+{
+	keybd_event(VK_MENU,0x38,0,0);
+	keybd_event(VK_RETURN,0x1c,0,0);
+	keybd_event(VK_RETURN,0x1c,KEYEVENTF_KEYUP,0);
+	keybd_event(VK_MENU,0x38,KEYEVENTF_KEYUP,0);
 }
